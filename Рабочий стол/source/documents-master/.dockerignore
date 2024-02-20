@@ -1,0 +1,12 @@
+venv
+.vscode
+pg_data
+src/document_api/settings/local.py
+src/document_api/db.sqlite3
+*.pyc
+*.xml
+.idea
+.DS_Store
+coverage_reports
+.pytest_cache
+.devcontainer

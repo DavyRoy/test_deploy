@@ -1,0 +1,13 @@
+version: '3.4'
+
+services:
+  spa:
+    image: spa
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      NODE_ENV: production
+      VUE_APP_PROXY_URI: 2323232ttt
+    ports:
+      - 80:80

@@ -1,0 +1,43 @@
+version: '3.7'
+
+services:
+  user_api:
+    build: .
+    container_name: user_api
+    ports:
+      - "8001:8000"
+    networks:
+      - gen_dev
+      - default
+    hostname: user-api
+    environment:
+      KEYDB_HOST: keydb
+      KEYDB_PORT: 6379
+      KEYDB_PASSWORD: eYVX7EwVmmxKPCDmwMtyKVge8oLd2t81
+      DATABASE_URI: 'postgres://softgenesis:ldFLf5G6gDpb@master.f8cfe68e-0f6a-4326-a609-67c17231882a.c.dbaas.selcloud.ru:6432/user_api_db?sslmode=verify-ca'
+
+    volumes:
+      - ./coverage_reports:/usr/share/coverage_reports
+      - /root/.postgresql:/root/.postgresql
+    command: bash -c "./wait-for-it.sh keydb-cache:6379 -s --
+      ./docker-entrypoint.sh"
+
+  user_consumer:
+    build: .
+    container_name: user_consumer
+    depends_on:
+      - user_api
+    networks:
+      - gen_dev
+      - default
+    environment:
+      DEBUG: 1
+      SECRET_KEY: 'k(#wgcv4oxag+64w&-t5+ziepw8dhgy=_pq!yhds$r^uhdji(d'
+      DATABASE_URI: 'postgres://softgenesis:ldFLf5G6gDpb@master.f8cfe68e-0f6a-4326-a609-67c17231882a.c.dbaas.selcloud.ru:6432/user_api_db?sslmode=disable'
+      DEV_ENV: 1
+    command: ./wait-for-it.sh rabbitmq:5672 -s -t 30 -- python3 /usr/srv/user-api/src/manage.py start_consuming
+
+
+networks:
+  gen_dev:
+    external: true

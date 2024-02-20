@@ -1,0 +1,56 @@
+version: '3.7'
+
+services:
+
+  task_api:
+    build: .
+    container_name: task_api
+    ports:
+      - "8003:8000"
+    hostname: task-api
+    networks:
+      - gen_dev
+      - default
+    environment:
+      DEBUG: 1
+      SECRET_KEY: 'k(#wgcv4oxag+64w&-t5+ziepw8dhgy=_pq!yhds$r^uhdji(d'
+      ALLOWED_HOSTS: '*'
+      CORS_ORIGIN_WHITELIST: http://localhost:8080
+      DATABASE_URI: 'postgres://softgenesis:ldFLf5G6gDpb@master.f8cfe68e-0f6a-4326-a609-67c17231882a.c.dbaas.selcloud.ru:6432/task_api_db?sslmode=verify-ca'
+    command: bash -c "./docker-entrypoint.sh"
+
+    volumes:
+      - ./coverage_reports:/usr/share/coverage_reports
+      - /root/.postgresql:/root/.postgresql
+
+  task_api_celery:
+    build: .
+    container_name: task_api_celery
+    networks:
+      - gen_dev
+      - default
+    environment:
+      DEBUG: 1
+      SECRET_KEY: 'k(#wgcv4oxag+64w&-t5+ziepw8dhgy=_pq!yhds$r^uhdji(d'
+      ALLOWED_HOSTS: '*'
+      CORS_ORIGIN_WHITELIST: http://localhost:8080
+      DATABASE_URI: 'postgres://softgenesis:ldFLf5G6gDpb@master.f8cfe68e-0f6a-4326-a609-67c17231882a.c.dbaas.selcloud.ru:6432/gen_task_db?sslmode=disable'
+    command: bash -c "cd src && python manage.py migrate && celery -A gen_task_api worker -l INFO"
+
+  task_beat:
+    build: .
+    container_name: task_api_celery_beat
+    networks:
+      - gen_dev
+      - default
+    environment:
+      DEBUG: 1
+      SECRET_KEY: 'k(#wgcv4oxag+64w&-t5+ziepw8dhgy=_pq!yhds$r^uhdji(d'
+      ALLOWED_HOSTS: '*'
+      CORS_ORIGIN_WHITELIST: http://localhost:8080
+      DATABASE_URI: 'postgres://softgenesis:ldFLf5G6gDpb@master.f8cfe68e-0f6a-4326-a609-67c17231882a.c.dbaas.selcloud.ru:6432/gen_task_db?sslmode=disable'
+    command: bash -c "cd src && python manage.py migrate && celery -A gen_task_api beat -l debug --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+
+networks:
+  gen_dev:
+    external: true

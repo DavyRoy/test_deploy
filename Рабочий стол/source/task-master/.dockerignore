@@ -1,0 +1,13 @@
+venv
+.vscode
+pg_data
+src/gen_task_api/settings/local.py
+src/gen_task_api/db.sqlite3
+.git
+*.pyc
+*.xml
+.idea
+.DS_Store
+coverage_reports
+.pytest_cache
+.devcontainer

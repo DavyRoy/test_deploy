@@ -1,0 +1,16 @@
+venv
+*.pyc
+*.xml
+.vscode
+.idea
+.DS_Store
+pg_data
+src/genesis_proxy_gateway/db.sqlite3
+coverage_reports
+.pytest_cache
+.devcontainer
+.pytest_cache
+/dos2unix.exe
+/bin/
+/share/
+src/gpg_api/settings/local.py

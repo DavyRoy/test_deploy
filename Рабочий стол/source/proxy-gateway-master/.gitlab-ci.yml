@@ -1,0 +1,54 @@
+variables:
+  DOCKER_DRIVER: overlay
+  DOCKER_HOST: tcp://localhost:2375
+  DOCKER_TLS_CERTDIR: ""
+  GIT_SUBMODULE_STRATEGY: recursive
+  DOLLAR: $
+
+stages:
+  - build
+  - deploy
+
+atrtifact builder:
+  image: ${GB_REGISTRY}/docker:latest
+  services:
+    - docker:19.03.12-dind
+  stage: build
+  environment: 
+    name: stage
+  before_script:
+    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
+    - cat ./$CI_PROJECT_NAME.Dockerfile | envsubst > $CI_PROJECT_NAME.busted.Dockerfile
+  script:
+    - docker build -f ./$CI_PROJECT_NAME.busted.Dockerfile -t $CI_REGISTRY_IMAGE/$CI_COMMIT_SHORT_SHA:$CI_COMMIT_TAG -t $CI_REGISTRY_IMAGE/$CI_COMMIT_SHORT_SHA:latest .
+    - docker push $CI_REGISTRY_IMAGE/$CI_COMMIT_SHORT_SHA:$CI_COMMIT_TAG
+    - docker push $CI_REGISTRY_IMAGE/$CI_COMMIT_SHORT_SHA:latest
+  tags:
+    - k8s
+  only:
+    - /^k8s/
+
+STAGE-deploy:
+  stage: deploy
+  environment: 
+    name: stage
+    url: genesis-api.2mrw.tech
+  image: "${GB_REGISTRY}/kubectl:latest"
+  script:
+    - cat k8s/deployment.yaml | envsubst | kubectl -n ${k8s_namespace}-stage apply -f -
+  tags:
+    - k8s
+  only:
+    - /^k8s_stage/
+
+PROD-deploy:
+  stage: deploy
+  environment: 
+    name: prod
+  image: "${GB_REGISTRY}/kubectl:latest"
+  script:
+    - cat k8s/deployment.yaml | envsubst | kubectl -n ${k8s_namespace}-prod apply -f -
+  tags:
+    - k8s
+  only:
+    - /^k8s_prod/
