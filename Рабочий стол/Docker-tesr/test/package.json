@@ -1,0 +1,58 @@
+{
+  "name": "todomvc-swarm",
+  "version": "0.0.1",
+  "description": "Example React+Swarm TodoMVC app.",
+  "main": "dist/TodoApp.app.js",
+  "dependencies": {
+    "compression": "^1.1.0",
+    "express": "^4.6.1",
+    "express-react-views": "^0.5.0",
+    "browserify-shim": "~3.2.0",
+    "minimist": "^1.1.0",
+    "node-jsx": "^0.11.0",
+    "react": "^0.11.0",
+    "react-tools": "^0.11.0",
+    "swarm": "^0.3.25",
+    "ws": "^0.4.31"
+  },
+  "devDependencies": {
+    "browserify": "^2.36.0",
+    "envify": "~1.2.0",
+    "minifyify": "^4.4.0",
+    "reactify": "~0.4.0",
+    "statics": "~0.1.0"
+  },
+  "files": [
+    "css/*.css",
+    "css/*png",
+    "model/*.js",
+    "view/*.jsx",
+    "view/index.html",
+    "TodoApp.js",
+    "TodoAppServer.js",
+    "TodoRouter.js",
+    "README.md",
+    "LICENSE",
+    "Makefile",
+    "fake_auth_init.js",
+    "todo.appcache",
+    "run.sh"
+  ],
+  "scripts": {
+    "prestart": "make all",
+    "start": "node TodoAppServer.js",
+    "preuninstall": "make clean"
+  },
+  "author": "Bill Fisher, Andrew Popp and finally Victor Grishchenko",
+  "license": "Apache 2",
+  "browserify": {
+    "transform": [
+      "reactify",
+      "envify",
+      "browserify-shim"
+    ]
+  },
+  "browserify-shim": {
+      "react": "global:React"
+  }
+}
